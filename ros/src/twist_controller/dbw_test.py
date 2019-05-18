@@ -23,7 +23,6 @@ performing on various commands.
 
 '''
 
-
 class DBWTestNode(object):
     def __init__(self):
         rospy.init_node('dbw_test_node')
