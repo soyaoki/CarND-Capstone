@@ -6,6 +6,7 @@ from geometry_msgs.msg import PoseStamped
 from styx_msgs.msg import Lane, Waypoint
 from scipy.spatial import KDTree
 from std_msgs.msg import Int32
+import numpy as np
 
 '''
 This node will publish waypoints from the car's current position to some `x` distance ahead.
@@ -49,7 +50,7 @@ class WaypointUpdater(object):
         # TODO: Add a subscriber for /traffic_waypoint and /obstacle_waypoint below
         rospy.Subscriber('/traffic_waypoint', Int32, self.traffic_cb) # Stopline Index in waypints
         rospy.Subscriber('/obstacle_waypoint', Int32, self.obstacle_cb) # Obstacle Index in waypints
-
+        
         # TODO: Add other member variables you need below
         # for test
         self.pose = None 
@@ -89,9 +90,9 @@ class WaypointUpdater(object):
         
         while not rospy.is_shutdown():
             # If pose and base_waypoints exist, publish waypoints
-            if self.pose and self.base_waypoints:
+            if self.pose and self.base_waypoints and self.waypoint_tree:
                 self.publish_waypoints()
-        rate.sleep()
+            rate.sleep()
         
     # Publish waypoints
     def publish_waypoints(self):
