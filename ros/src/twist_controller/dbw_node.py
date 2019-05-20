@@ -103,8 +103,7 @@ class DBWNode(object):
         # twist(TwistStamped) ------ header(seq, stamp, frame_id)
         #                              |------ twist(Twist) ------ linear(x,y,z)
         #                                                       | ----- angular(x,y,z)
-
-        # for test
+        
         self.dbw_enabled = None
         self.linear_vel = None
         self.angular_vel = None
@@ -122,11 +121,12 @@ class DBWNode(object):
             # You should only publish the control commands if dbw is enabled
             # If current velocity, target velocity and angular exist, controller calculate control values
             if not None in (self.current_vel, self.linear_vel, self.angular_vel):
+                # Calculate throttle, brake and steering value for control
                 self.throttle, self.brake, self.steering = self.controller.control(self.current_vel, self.dbw_enabled, self.linear_vel, self.angular_vel)
                 # If Drive by wire is enable, publish control values
                 if self.dbw_enabled:
                     self.publish(self.throttle, self.brake, self.steering)
-        rate.sleep()
+            rate.sleep()
         
     # Call back functions
     def dbw_enabled_cb(self, msg):

@@ -52,7 +52,6 @@ class WaypointUpdater(object):
         rospy.Subscriber('/obstacle_waypoint', Int32, self.obstacle_cb) # Obstacle Index in waypints
         
         # TODO: Add other member variables you need below
-        # for test
         self.pose = None 
         self.base_waypoints = None 
         self.waypoints_2d = None
