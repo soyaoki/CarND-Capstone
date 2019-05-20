@@ -59,6 +59,7 @@ class Controller(object):
         
         # Calculate steering value
         steering = self.yaw_controller.get_steering(linear_vel, angular_vel, current_vel)
+        rospy.logwarn("Steering angle: {0}".format(steering))
 
         vel_error = linear_vel - current_vel
         self.last_vel = current_vel
@@ -78,4 +79,6 @@ class Controller(object):
             decel = max(vel_error, self.decel_limit)
             brake = abs(decel)*self.vehicle_mass*self.wheel_radius 
         
+        rospy.logwarn("Throttle: {0}".format(throttle))
+        rospy.logwarn("Brake: {0}".format(brake))
         return throttle, brake, steering
