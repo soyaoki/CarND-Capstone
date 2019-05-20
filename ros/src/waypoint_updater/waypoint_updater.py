@@ -24,7 +24,7 @@ TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
 LOOKAHEAD_WPS = 200 # Number of waypoints we will publish. You can change this number
-MAX_DECEL = 0.2*9.8 # Max deceleration [m/s2]
+MAX_DECEL = 0.5*9.8 # Max deceleration [m/s2]
 
 class WaypointUpdater(object):
     # Initialization
@@ -86,7 +86,6 @@ class WaypointUpdater(object):
     def loop(self):
         # Excute rate
         rate = rospy.Rate(50)
-        
         while not rospy.is_shutdown():
             # If pose and base_waypoints exist, publish waypoints
             if self.pose and self.base_waypoints and self.waypoint_tree:
@@ -109,7 +108,7 @@ class WaypointUpdater(object):
         base_waypoints = self.base_waypoints.waypoints[closest_idx:farthest_idx]
         
         # If stop line not exist (idx == -1) or stop line exist farther than farthest index, give base_waypoints to lane
-        if self.stopline_wp_idx == -1 or (self.stopline_wp_idx >- farthest_idx):
+        if self.stopline_wp_idx == -1 or (self.stopline_wp_idx >= farthest_idx):
             lane.waypoints = base_waypoints
         # Else stop line exist in base_waypoints, create waypoints to decelerate and stop before stop line
         else:
@@ -123,6 +122,9 @@ class WaypointUpdater(object):
         y = self.pose.pose.position.y
         # Get closest point from current position
         closest_idx = self.waypoint_tree.query([x,y],1)[1]
+        rospy.logwarn("X: {0}".format(x))
+        rospy.logwarn("Y: {0}".format(y))
+        rospy.logwarn("Closest_idx: {0}".format(closest_idx))
         
         # Check if closest is ahead or behind vehicle
         closest_coord = self.waypoints_2d[closest_idx]
@@ -135,9 +137,13 @@ class WaypointUpdater(object):
         
         # Calculate inner product
         val = np.dot(cl_vect-prev_vect, pos_vect-cl_vect)
-        # If inmer product is positive, closest_idx exist in front of the vehicle
+        # If inmer product is positive, closest_idx exist behind the vehicle
         if val > 0:
             closest_idx = (closest_idx + 1) % len(self.waypoints_2d)
+
+        rospy.logwarn("Closest_idx: {0}".format(closest_idx))
+        rospy.logwarn("Closest_X: {0}".format(cl_vect[0]))
+        rospy.logwarn("Closest_Y: {0}".format(cl_vect[1]))
             
         return closest_idx
     
