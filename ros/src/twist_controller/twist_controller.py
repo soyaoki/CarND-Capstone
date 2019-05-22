@@ -17,8 +17,8 @@ class Controller(object):
         kp = 0.3
         ki = 0.1
         kd = 0.
-        mn = 0.
-        mx = 0.2
+        mn = 0. # Min acc
+        mx = 0.2 # MAX acc
         self.throttle_controller = PID(kp, ki, kd, mn, mx)
         
         # Create low-pass filter for velocity
@@ -53,13 +53,13 @@ class Controller(object):
         
         #rospy.logwarn("Angular vel: {0}".format(angular_vel))
         #rospy.logwarn("Target vel: {0}".format(linear_vel))
-        rospy.logwarn("Target angular vel: {0}".format(angular_vel))
+        #rospy.logwarn("Target angular vel: {0}".format(angular_vel))
         #rospy.logwarn("Current vel: {0}".format(current_vel))
         #rospy.logwarn("Filtered vel: {0}".format(self.vel_lpf.get()))
         
         # Calculate steering value
         steering = self.yaw_controller.get_steering(linear_vel, angular_vel, current_vel)
-        rospy.logwarn("Steering angle: {0}".format(steering))
+        #rospy.logwarn("Steering angle: {0}".format(steering))
 
         vel_error = linear_vel - current_vel
         self.last_vel = current_vel
@@ -77,7 +77,7 @@ class Controller(object):
         elif throttle < 0.1 and vel_error < 0:
             throttle= 0
             decel = max(vel_error, self.decel_limit)
-            brake = abs(decel)*self.vehicle_mass*self.wheel_radius 
+            brake = abs(decel)*self.vehicle_mass*self.wheel_radius # Trque N*m
         
         #rospy.logwarn("Throttle: {0}".format(throttle))
         #rospy.logwarn("Brake: {0}".format(brake))

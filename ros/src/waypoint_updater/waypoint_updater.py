@@ -31,6 +31,15 @@ class WaypointUpdater(object):
     def __init__(self):
         # Node
         rospy.init_node('waypoint_updater')
+        
+        # TODO: Add other member variables you need below
+        self.pose = None 
+        self.base_lane = None 
+        self.waypoints_2d = None
+        self.waypoint_tree = None
+        self.stopline_wp_idx = -1 
+        #self.obstacle_wp_idx = -1
+        
         # Subscriber
         rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb) # Get Pose msg -> self.pose
         rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb) # Get lane(waypoints) msg -> self.base_waypoints
@@ -49,15 +58,7 @@ class WaypointUpdater(object):
         
         # TODO: Add a subscriber for /traffic_waypoint and /obstacle_waypoint below
         rospy.Subscriber('/traffic_waypoint', Int32, self.traffic_cb) # Stopline Index in waypints
-        rospy.Subscriber('/obstacle_waypoint', Int32, self.obstacle_cb) # Obstacle Index in waypints
-        
-        # TODO: Add other member variables you need below
-        self.pose = None 
-        self.base_waypoints = None 
-        self.waypoints_2d = None
-        self.waypoint_tree = None
-        self.stopline_wp_idx = -1 
-        self.obstacle_wp_idx = -1
+        # rospy.Subscriber('/obstacle_waypoint', Int32, self.obstacle_cb) # Obstacle Index in waypints
         
         # LOOP
         self.loop()
@@ -69,7 +70,7 @@ class WaypointUpdater(object):
 
     def waypoints_cb(self, waypoints):
         # TODO: Implement
-        self.base_waypoints = waypoints
+        self.base_lane = waypoints
         if not self.waypoints_2d:
             self.waypoints_2d = [[waypoint.pose.pose.position.x, waypoint.pose.pose.position.y] for waypoint in waypoints.waypoints]
             self.waypoint_tree = KDTree(self.waypoints_2d)
@@ -88,7 +89,7 @@ class WaypointUpdater(object):
         rate = rospy.Rate(50)
         while not rospy.is_shutdown():
             # If pose and base_waypoints exist, publish waypoints
-            if self.pose and self.base_waypoints and self.waypoint_tree:
+            if self.pose and self.base_lane:
                 self.publish_waypoints()
             rate.sleep()
         
@@ -105,10 +106,10 @@ class WaypointUpdater(object):
         closest_idx = self.get_closest_waypoint_idx()
         farthest_idx = closest_idx + LOOKAHEAD_WPS # +200
         # Cut out waypoints in needed area
-        base_waypoints = self.base_waypoints.waypoints[closest_idx:farthest_idx]
+        base_waypoints = self.base_lane.waypoints[closest_idx:farthest_idx]
         
         # If stop line not exist (idx == -1) or stop line exist farther than farthest index, give base_waypoints to lane
-        if self.stopline_wp_idx == -1 or (self.stopline_wp_idx >= farthest_idx):
+        if (self.stopline_wp_idx == -1) or (self.stopline_wp_idx >= farthest_idx):
             lane.waypoints = base_waypoints
         # Else stop line exist in base_waypoints, create waypoints to decelerate and stop before stop line
         else:
@@ -122,9 +123,6 @@ class WaypointUpdater(object):
         y = self.pose.pose.position.y
         # Get closest point from current position
         closest_idx = self.waypoint_tree.query([x,y],1)[1]
-        rospy.logwarn("X: {0}".format(x))
-        rospy.logwarn("Y: {0}".format(y))
-        rospy.logwarn("Closest_idx: {0}".format(closest_idx))
         
         # Check if closest is ahead or behind vehicle
         closest_coord = self.waypoints_2d[closest_idx]
@@ -140,10 +138,12 @@ class WaypointUpdater(object):
         # If inmer product is positive, closest_idx exist behind the vehicle
         if val > 0:
             closest_idx = (closest_idx + 1) % len(self.waypoints_2d)
-
-        rospy.logwarn("Closest_idx: {0}".format(closest_idx))
-        rospy.logwarn("Closest_X: {0}".format(cl_vect[0]))
-        rospy.logwarn("Closest_Y: {0}".format(cl_vect[1]))
+        
+        #rospy.logwarn("X: {0}".format(x))
+        #rospy.logwarn("Y: {0}".format(y))
+        #rospy.logwarn("Closest_idx: {0}".format(closest_idx))
+        #rospy.logwarn("Closest_X: {0}".format(cl_vect[0]))
+        #rospy.logwarn("Closest_Y: {0}".format(cl_vect[1]))
             
         return closest_idx
     
@@ -154,13 +154,12 @@ class WaypointUpdater(object):
         # Each waypoint(Pose and Twist)
         for i, wp in enumerate(waypoints):
             # Create a new waypoint
-            print(i)
             p = Waypoint()
             p.pose = wp.pose # Copy pose(PoseStamped)
             # 
             stop_idx = max(self.stopline_wp_idx - closest_idx - 3, 0)
             # Calculate distance 
-            dis = self.distance(waypoints, i, stop_idx)
+            dist = self.distance(waypoints, i, stop_idx)
             # Calculate velocity for deceleration
             vel_2order_dec = math.sqrt(2 * MAX_DECEL * dist)
             if vel_2order_dec < 1.0:

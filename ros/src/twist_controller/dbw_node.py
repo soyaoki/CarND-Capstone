@@ -97,7 +97,7 @@ class DBWNode(object):
 
         # TODO: Subscribe to all the topics you need to
         rospy.Subscriber('/vehicle/dbw_enabled', Bool, self.dbw_enabled_cb) # IMPORTANT
-        rospy.Subscriber('/twist_cmd', TwistStamped, self.twist_cb) # Get target velocity and angular
+        rospy.Subscriber('/twist_cmd', TwistStamped, self.twist_cb) # Get target velocity and angular from pure persuit
         rospy.Subscriber('/current_velocity', TwistStamped, self.velocity_cb) # Get current velocity
         # "TwistStamped" containts:
         # twist(TwistStamped) ------ header(seq, stamp, frame_id)
@@ -124,8 +124,8 @@ class DBWNode(object):
                 # Calculate throttle, brake and steering value for control
                 self.throttle, self.brake, self.steering = self.controller.control(self.current_vel, self.dbw_enabled, self.linear_vel, self.angular_vel)
                 # If Drive by wire is enable, publish control values
-                if self.dbw_enabled:
-                    self.publish(self.throttle, self.brake, self.steering)
+            if self.dbw_enabled:
+                self.publish(self.throttle, self.brake, self.steering)
             rate.sleep()
         
     # Call back functions
