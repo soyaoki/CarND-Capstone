@@ -58,7 +58,6 @@ class TLPublisher(object):
 
         return pose
 
-
 if __name__ == '__main__':
     try:
         TLPublisher()
