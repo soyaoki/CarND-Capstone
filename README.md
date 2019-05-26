@@ -6,6 +6,11 @@ sudo apt-get install -y ros-kinetic-dbw-mkz-msgs
 cd /home/workspace/CarND-Capstone/ros
 rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y
 pip install --upgrade catkin_pkg_modules
+
+pip install tensorflow_gpu keras pillow matplotlib
+pip install -U pillow
+pip install -U keras
+pip install -U tensorflow
 ```
 
 ![text](rosnode.png)
