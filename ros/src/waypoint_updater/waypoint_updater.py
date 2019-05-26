@@ -86,7 +86,7 @@ class WaypointUpdater(object):
     # LOOP
     def loop(self):
         # Excute rate
-        rate = rospy.Rate(10)
+        rate = rospy.Rate(5)
         while not rospy.is_shutdown():
             # If pose and base_waypoints exist, publish waypoints
             if self.pose and self.base_lane:
@@ -113,7 +113,7 @@ class WaypointUpdater(object):
             lane.waypoints = base_waypoints
         # Else stop line exist in base_waypoints, create waypoints to decelerate and stop before stop line
         else:
-            lane.waypoints = self.decelerate_waypoints(base_waypoints, closest_idx)
+            lane.waypoints = self.decelerate_waypoints(base_waypoints, closest_idx) # deceleration
         return lane
     
     # Get the closest waypoint index
@@ -180,6 +180,8 @@ class WaypointUpdater(object):
         dist = 0
         dl = lambda a, b: math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2  + (a.z-b.z)**2)
         for i in range(wp1, wp2+1):
+            #rospy.logwarn("Waypoint 1: {0}".format(wp1))
+            #rospy.logwarn("Waypoint 2: {0}".format(wp2))
             dist += dl(waypoints[wp1].pose.pose.position, waypoints[i].pose.pose.position)
             wp1 = i
         return dist

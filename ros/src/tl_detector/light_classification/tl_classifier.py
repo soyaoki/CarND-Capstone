@@ -3,6 +3,10 @@ from styx_msgs.msg import TrafficLight
 class TLClassifier(object):
     def __init__(self):
         #TODO load classifier
+        # Traffic light Detector -> YOLO
+        
+        # Light state classifier - > pretrained CNN
+        
         pass
 
     def get_classification(self, image):
@@ -16,4 +20,9 @@ class TLClassifier(object):
 
         """
         #TODO implement light color prediction
-        return TrafficLight.UNKNOWN
+        
+        # (1) Get ROI 
+        
+        # (2) Input CNN
+        
+        return TrafficLight.RED
