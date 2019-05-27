@@ -11,6 +11,7 @@ import tf
 import cv2
 import yaml
 from scipy.spatial import KDTree
+from PIL import Image as Img
 
 STATE_COUNT_THRESHOLD = 3
 
@@ -191,8 +192,11 @@ class TLDetector(object):
         # Convert ROS image to CV image
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
         
+        # Convert CV image to PIL
+        PIL_image = Img.fromarray(cv_image)
+        
         #Get classification the light state
-        return self.light_classifier.get_classification(cv_image)
+        return self.light_classifier.get_classification(PIL_image)
 
 if __name__ == '__main__':
     try:
