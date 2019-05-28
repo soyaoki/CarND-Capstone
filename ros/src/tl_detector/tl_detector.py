@@ -23,6 +23,7 @@ class TLDetector(object):
         self.pose = None
         self.waypoints = None
         self.camera_image = None
+        self.has_image = False
         self.lights = []
         self.waypoints_2d = None
         self.waypoint_tree = None
@@ -69,8 +70,9 @@ class TLDetector(object):
         self.last_wp = -1 # last waypoint
         self.state_count = 0 # Count that image was classified as same traffic continuously
         
-        rospy.spin()
-
+        # Loop
+        self.loop()
+    
     # Call back functions
     def pose_cb(self, msg):
         self.pose = msg
@@ -95,27 +97,35 @@ class TLDetector(object):
         """
         self.has_image = True
         self.camera_image = msg
-        light_wp, state = self.process_traffic_lights() # Detect and classify trafic light. Return light waypoint and state
-
-        '''
-        Publish upcoming red lights at camera frequency.
-        Each predicted state has to occur `STATE_COUNT_THRESHOLD` number
-        of times till we start using it. Otherwise the previous stable state is
-        used.
-        '''
-        # If state change
-        if self.state != state:
-            self.state_count = 0 # Reset count
-            self.state = state # Update state
-        # If result of traffic light classification is same over threshold continuously
-        elif self.state_count >= STATE_COUNT_THRESHOLD:
-            self.last_state = self.state # Update last state
-            light_wp = light_wp if state == TrafficLight.RED else -1 # If traffic light state is red, retun light waypoint to stop vehicle 
-            self.last_wp = light_wp # Update light waypoint
-            self.upcoming_red_light_pub.publish(Int32(light_wp)) # Publish light waypoint
-        else:
-            self.upcoming_red_light_pub.publish(Int32(self.last_wp)) # Publish last waypoint (-1 or red light waypoint)
-        self.state_count += 1
+        
+    # LOOP
+    def loop(self):
+        # Excute rate
+        rate = rospy.Rate(2)
+        while not rospy.is_shutdown():
+            if (self.has_image):
+                light_wp, state = self.process_traffic_lights() # Detect and classify trafic light. Return light waypoint and state
+                
+                '''
+                Publish upcoming red lights at camera frequency.
+                Each predicted state has to occur `STATE_COUNT_THRESHOLD` number
+                of times till we start using it. Otherwise the previous stable state is
+                used.
+                '''
+                # If state change
+                if self.state != state:
+                    self.state_count = 0 # Reset count
+                    self.state = state # Update state
+                # If result of traffic light classification is same over threshold continuously
+                elif self.state_count >= STATE_COUNT_THRESHOLD:
+                    self.last_state = self.state # Update last state
+                    light_wp = light_wp if state == TrafficLight.RED else -1 # If traffic light state is red, retun light waypoint to stop vehicle 
+                    self.last_wp = light_wp # Update light waypoint
+                    self.upcoming_red_light_pub.publish(Int32(light_wp)) # Publish light waypoint
+                else:
+                    self.upcoming_red_light_pub.publish(Int32(self.last_wp)) # Publish last waypoint (-1 or red light waypoint)
+                self.state_count += 1
+            rate.sleep()
     
     # Detect and classify trafic light. Return light waypoint and state
     def process_traffic_lights(self):

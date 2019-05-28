@@ -26,7 +26,7 @@ class TLPublisher(object):
         self.loop()
 
     def loop(self):
-        rate = rospy.Rate(5)
+        rate = rospy.Rate(1)
         while not rospy.is_shutdown():
             self.traffic_light_pubs.publish(self.lights)
             rate.sleep()
