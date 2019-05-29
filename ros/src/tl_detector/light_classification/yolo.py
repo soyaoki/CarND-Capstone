@@ -22,8 +22,6 @@ from yolo3.utils import letterbox_image
 import os
 from keras.utils import multi_gpu_model
 
-import cv2
-
 class YOLO(object):
     _defaults = {
         "model_path": PATH + '/light_classification/keras-yolo3/model_data/yolo-tiny.h5',

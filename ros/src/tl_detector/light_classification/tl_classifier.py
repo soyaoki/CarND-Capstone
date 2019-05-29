@@ -6,6 +6,7 @@ from keras.models import load_model
 import numpy as np
 import os
 import cv2
+from timeit import default_timer as timer
 PATH = os.getcwd()
 
 class TLClassifier(object):
@@ -29,7 +30,7 @@ class TLClassifier(object):
 
         """
         #TODO implement light color prediction
-        
+        start = timer()
         # (1) Get ROI (Detect traffic lights)
         image, tl_imgs = self.detector.detect_image(image)
         if (tl_imgs):
@@ -40,5 +41,6 @@ class TLClassifier(object):
                 img = cv2.resize(img, (32,32))
                 prd = np.argmax(self.classifier.predict(img.reshape([1,32,32,3])))
                 print(prd)
-        
+        end = timer()
+        print(end-start)
         return TrafficLight.GREEN
