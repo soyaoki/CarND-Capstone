@@ -8,8 +8,8 @@ import os
 from timeit import default_timer as timer
 import sys
 PATH = os.getcwd()
-print(PATH + '/light_classification/keras-yolo3')
-sys.path.append(PATH + '/light_classification/keras-yolo3')
+print(PATH + '/light_classification/yolo-config')
+sys.path.append(PATH + '/light_classification/yolo-config')
 
 import numpy as np
 from keras import backend as K
@@ -24,9 +24,9 @@ from keras.utils import multi_gpu_model
 
 class YOLO(object):
     _defaults = {
-        "model_path": PATH + '/light_classification/keras-yolo3/model_data/yolo-tiny.h5',
-        "anchors_path": PATH + '/light_classification/keras-yolo3/model_data/tiny_yolo_anchors.txt',
-        "classes_path": PATH + '/light_classification/keras-yolo3/model_data/coco_classes.txt',
+        "model_path": PATH + '/light_classification/yolo-config/model_data/yolo-tiny.h5',
+        "anchors_path": PATH + '/light_classification/yolo-config/model_data/tiny_yolo_anchors.txt',
+        "classes_path": PATH + '/light_classification/yolo-config/model_data/coco_classes.txt',
         "score" : 0.3, # confidence score
         "iou" : 0.45, # Intersection Over Union
         "model_image_size" : (8*32, 6*32), # Image size
