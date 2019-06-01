@@ -61,8 +61,8 @@ class TLDetector(object):
         self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
         
         # Variables
-        self.bridge = CvBridge() # Change ROS_image -> Opencv_image
-        self.light_classifier = TLClassifier() # Classify traffic light
+        self.bridge = CvBridge() # Convert ROS_image -> Opencv_image
+        self.light_classifier = TLClassifier() # Classify traffic light state
         self.listener = tf.TransformListener() # transform Coordinate
 
         self.state = TrafficLight.UNKNOWN # 4
@@ -76,15 +76,18 @@ class TLDetector(object):
     # Call back functions
     def pose_cb(self, msg):
         self.pose = msg
+        rospy.logwarn("Tl detector: subscribed 'current pose'.")
 
     def waypoints_cb(self, waypoints):
         self.waypoints = waypoints
         if not self.waypoints_2d:
             self.waypoints_2d = [[waypoint.pose.pose.position.x, waypoint.pose.pose.position.y] for waypoint in waypoints.waypoints]
             self.waypoint_tree = KDTree(self.waypoints_2d)
+        rospy.logwarn("Tl detector: subscribed 'base waypoints'.")
 
     def traffic_cb(self, msg):
         self.lights = msg.lights
+        rospy.logwarn("Tl detector: subscribed 'traffic lights'.")
 
     # Get and classify image
     def image_cb(self, msg):
@@ -97,11 +100,12 @@ class TLDetector(object):
         """
         self.has_image = True
         self.camera_image = msg
+        rospy.logwarn("Tl detector: subscribed 'image color'.")
         
     # LOOP
     def loop(self):
         # Excute rate
-        rate = rospy.Rate(2)
+        rate = rospy.Rate(10)
         while not rospy.is_shutdown():
             if (self.has_image):
                 light_wp, state = self.process_traffic_lights() # Detect and classify trafic light. Return light waypoint and state
@@ -125,6 +129,7 @@ class TLDetector(object):
                 else:
                     self.upcoming_red_light_pub.publish(Int32(self.last_wp)) # Publish last waypoint (-1 or red light waypoint)
                 self.state_count += 1
+            rospy.logwarn("Tl detector: published 'traffic waypoint'(stop line index).")
             rate.sleep()
     
     # Detect and classify trafic light. Return light waypoint and state

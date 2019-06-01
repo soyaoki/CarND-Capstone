@@ -24,6 +24,7 @@ class WaypointLoader(object):
 
         self.velocity = self.kmph2mps(rospy.get_param('~velocity'))
         self.new_waypoint_loader(rospy.get_param('~path'))
+        rospy.logwarn("Waypoint loader: published 'base waypoint'.")
         rospy.spin()
 
     def new_waypoint_loader(self, path):

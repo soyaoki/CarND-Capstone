@@ -32,15 +32,27 @@ class TLClassifier(object):
         #TODO implement light color prediction
         start = timer()
         # (1) Get ROI (Detect traffic lights)
+        state_predicted = TrafficLight.UNKNOWN
         image, tl_imgs = self.detector.detect_image(image)
-        if (tl_imgs):
+        if (len(tl_imgs)>1):
             # For each tdetected lights
+            states = []
             for i in range(0,len(tl_imgs)-1):
                 # (2) Input CNN
                 img = np.asarray(tl_imgs[i])
                 img = cv2.resize(img, (32,32))
                 prd = np.argmax(self.classifier.predict(img.reshape([1,32,32,3])))
                 print(prd)
+                states.append(prd)
+            print(states)
+            count = np.bincount(states)
+            mode = np.argmax(count)
+            if (mode == 2):
+                state_predicted = TrafficLight.GREEN
+            elif (mode == 1):
+                state_predicted = TrafficLight.YELLOW
+            else:
+                state_predicted = TrafficLight.RED
         end = timer()
         print(end-start)
-        return TrafficLight.GREEN
+        return state_predicted
