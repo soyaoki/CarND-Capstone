@@ -67,5 +67,5 @@ if __name__ == "__main__":
     # Run publisher
     while not rospy.is_shutdown():
         publisher.publish(camera_info_msg)
-        rospy.logwarn("Camera: publoshed 'camera info'.")
+        #rospy.logwarn("Camera: publoshed 'camera info'.")
         rate.sleep()

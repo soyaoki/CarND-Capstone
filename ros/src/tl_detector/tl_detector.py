@@ -12,6 +12,8 @@ import cv2
 import yaml
 from scipy.spatial import KDTree
 from PIL import Image as Img
+from timeit import default_timer as timer
+import random
 
 STATE_COUNT_THRESHOLD = 3
 
@@ -38,7 +40,7 @@ class TLDetector(object):
         simulator. When testing on the vehicle, the color state will not be available. You'll need to
         rely on the position of the light and the camera image to predict it.
         '''
-        sub3 = rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb) # Get light state and current pose from vehicle msg.lights -> self.light
+        sub3 = rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb) # Get light state and current pose from vehicle msg.lights -> self.light (IT CAN BE USED IN SIMULATOR ONLY !)
         # "TrafficLightsArray" containts:
         # TrafficLight[] lights
             # Header header
@@ -76,18 +78,18 @@ class TLDetector(object):
     # Call back functions
     def pose_cb(self, msg):
         self.pose = msg
-        rospy.logwarn("Tl detector: subscribed 'current pose'.")
+        #rospy.logwarn("Tl detector: subscribed 'current pose'.")
 
     def waypoints_cb(self, waypoints):
         self.waypoints = waypoints
         if not self.waypoints_2d:
             self.waypoints_2d = [[waypoint.pose.pose.position.x, waypoint.pose.pose.position.y] for waypoint in waypoints.waypoints]
             self.waypoint_tree = KDTree(self.waypoints_2d)
-        rospy.logwarn("Tl detector: subscribed 'base waypoints'.")
+        #rospy.logwarn("Tl detector: subscribed 'base waypoints'.")
 
     def traffic_cb(self, msg):
         self.lights = msg.lights
-        rospy.logwarn("Tl detector: subscribed 'traffic lights'.")
+        #rospy.logwarn("Tl detector: subscribed 'traffic lights'.")
 
     # Get and classify image
     def image_cb(self, msg):
@@ -100,16 +102,19 @@ class TLDetector(object):
         """
         self.has_image = True
         self.camera_image = msg
-        rospy.logwarn("Tl detector: subscribed 'image color'.")
+        #rospy.logwarn("Tl detector: subscribed 'image color'.")
         
     # LOOP
     def loop(self):
         # Excute rate
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():
-            if (self.has_image):
+            start = timer()
+            if (self.pose):
                 light_wp, state = self.process_traffic_lights() # Detect and classify trafic light. Return light waypoint and state
-                
+                # Camera On - > Use light state classied by image
+                # Camera Off -> Use light state information from simulator                
+            
                 '''
                 Publish upcoming red lights at camera frequency.
                 Each predicted state has to occur `STATE_COUNT_THRESHOLD` number
@@ -129,7 +134,9 @@ class TLDetector(object):
                 else:
                     self.upcoming_red_light_pub.publish(Int32(self.last_wp)) # Publish last waypoint (-1 or red light waypoint)
                 self.state_count += 1
-            rospy.logwarn("Tl detector: published 'traffic waypoint'(stop line index).")
+            #rospy.logwarn("Tl detector: published 'traffic waypoint'(stop line index).")
+            end = timer()
+            rospy.logwarn("Traffic light recognition time : {0}".format(end-start) + ", Closest light state : {0}".format(state))
             rate.sleep()
     
     # Detect and classify trafic light. Return light waypoint and state
@@ -146,27 +153,41 @@ class TLDetector(object):
         light = None
         line_wp_idx = -1
         
+        # Get closest waypint index
+        car_wp_idx = self.get_closest_waypoint(self.pose.pose.position.x, self.pose.pose.position.y)
+        
         # List of positions that correspond to the line to stop in front of for a given intersection
         stop_line_positions = self.config['stop_line_positions']
-        if(self.pose):
-            # Get closest waypint index
-            car_wp_idx = self.get_closest_waypoint(self.pose.pose.position.x, self.pose.pose.position.y)
-            
+        
+        # Use light information in Simulator
+        if(self.lights):
             #TODO find the closest visible traffic light (if one exists)
             diff = len(self.waypoints.waypoints)
+            # For each lights
             for i, light in enumerate(self.lights):
                 # Get stop line waypoints index
                 line = stop_line_positions[i]
                 temp_wp_idx = self.get_closest_waypoint(line[0], line[1]) # closest waypoint indx for the stop line
-                # Find closest stop line waypoint index
+                # Find index of closest stop line waypoint
                 d = temp_wp_idx - car_wp_idx
                 if d >= 0 and d < diff:
                     diff = d
                     closest_light = light
                     line_wp_idx = temp_wp_idx
-        # If closest light exist, classify the light state
-        if closest_light:
-            state = self.get_light_state(light)
+            # If closest light exist, return the light's state and waypoint
+            if closest_light:
+                # Randomly use image
+                if (random.randint(0,20)==10):
+                    if (self.has_image):
+                        state = self.get_light_state(closest_light)
+                        return line_wp_idx, state
+                return line_wp_idx, closest_light.state
+            
+        # Classify light state 
+        elif (self.has_image):
+            state = self.get_light_state(closest_light)
+            if(state == TrafficLight.RED):
+                line_wp_idx = car_wp_idx + 20 # Turning is needed
             return line_wp_idx, state
         
         return -1, TrafficLight.UNKNOWN
@@ -194,16 +215,7 @@ class TLDetector(object):
         Returns:
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
-        """
-        
-        ## For testing, just return the light state
-        # return light.state        
-        
-        # If self has no image
-        if(not self.has_image):
-            self.prev_light_loc = None
-            return False
-        
+        """        
         # Convert ROS image to CV image
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
         

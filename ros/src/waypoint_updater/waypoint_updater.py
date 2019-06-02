@@ -67,7 +67,7 @@ class WaypointUpdater(object):
     def pose_cb(self, msg):
         # TODO: Implement
         self.pose = msg
-        rospy.logwarn("Waypoint updater: subscribed 'current pose'.")
+        #rospy.logwarn("Waypoint updater: subscribed 'current pose'.")
 
     def waypoints_cb(self, waypoints):
         # TODO: Implement
@@ -75,17 +75,17 @@ class WaypointUpdater(object):
         if not self.waypoints_2d:
             self.waypoints_2d = [[waypoint.pose.pose.position.x, waypoint.pose.pose.position.y] for waypoint in waypoints.waypoints]
             self.waypoint_tree = KDTree(self.waypoints_2d)
-        rospy.logwarn("Waypoint updater: subscribed 'base waypoints'.")
+        #rospy.logwarn("Waypoint updater: subscribed 'base waypoints'.")
             
     def traffic_cb(self, msg):
         # TODO: Callback for /traffic_waypoint message. Implement
         self.stopline_wp_idx = msg.data
-        rospy.logwarn("Waypoint updater: subscribed 'traffic waypoint'.")
+        #rospy.logwarn("Waypoint updater: subscribed 'traffic waypoint'.")
 
     def obstacle_cb(self, msg):
         # TODO: Callback for /obstacle_waypoint message. We will implement it later
         self.obstacle_wp_idx = msg.data
-        rospy.logwarn("Waypoint updater: subscribed 'obstacle waypoint'.")
+        #rospy.logwarn("Waypoint updater: subscribed 'obstacle waypoint'.")
 
     # LOOP
     def loop(self):
@@ -95,7 +95,7 @@ class WaypointUpdater(object):
             # If pose and base_waypoints exist, publish waypoints
             if self.pose and self.base_lane:
                 self.publish_waypoints()
-                rospy.logwarn("Waypoint updater: published 'final waypoints'.")
+                #rospy.logwarn("Waypoint updater: published 'final waypoints'.")
             rate.sleep()
         
     # Publish waypoints

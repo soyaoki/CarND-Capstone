@@ -43,7 +43,9 @@ class Controller(object):
     def control(self, current_vel, dbw_enabled, linear_vel, angular_vel):
         # TODO: Change the arg, kwarg list to suit your needs
         # Return throttle, brake, steer
-        rospy.logwarn("DBW_enabled: {0}".format(dbw_enabled))
+        
+        #rospy.logwarn("DBW_enabled: {0}".format(dbw_enabled))
+        
         # If DBE_enable is None, system doesnt control
         if not dbw_enabled:
             self.throttle_controller.reset() # I_error in PID reset
