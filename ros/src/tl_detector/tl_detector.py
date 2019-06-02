@@ -134,9 +134,9 @@ class TLDetector(object):
                 else:
                     self.upcoming_red_light_pub.publish(Int32(self.last_wp)) # Publish last waypoint (-1 or red light waypoint)
                 self.state_count += 1
-            #rospy.logwarn("Tl detector: published 'traffic waypoint'(stop line index).")
-            end = timer()
-            rospy.logwarn("Traffic light recognition time : {0}".format(end-start) + ", Closest light state : {0}".format(state))
+                #rospy.logwarn("Tl detector: published 'traffic waypoint'(stop line index).")
+                end = timer()
+                rospy.logwarn("Traffic light recognition time : {0}".format(end-start) + ", Closest light state : {0}".format(state))
             rate.sleep()
     
     # Detect and classify trafic light. Return light waypoint and state

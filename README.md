@@ -1,4 +1,9 @@
+![text](cover.png)
+
+[Drive on YouTube](https://youtu.be/DZwgYNhRr4g)
+
 ### Before starting...
+
 Please execut following code in your workspace.
 
 ```
@@ -15,8 +20,28 @@ pip install -U tensorflow
 ```
 
 ### Summary
+
+In this System, 7 nodes were inmplemented.
+
+(1) Waypoint loader : Here, all waypoints in map were loaded only once as base waypoints.
+
+(2) Traffic Light detector : Waypoint depending on a state of the closest traffic light was made. In the simulator, the state of the traffic light was given so this node got /vehicle/traffic_lights and use the infomation.
+But in real world, the infomation isn't always used. Then, this node has a detector and a classifier of traffic light's state by using front camera image.
+
+(3) Waypoint updater : 
+
+(4) Pure pursuit : 
+
+(5) Drive by wire : 
+
+(6) Vehicle : 
+
+(7) Server : 
+
 ・Detector : [Yolo 3 (implemeted in keras)](https://github.com/qqwweee/keras-yolo3)
-・Classifier : Pretrained CNN (3 layer)
+
+・Classifier : [Pretrained CNN (3 layer)](https://github.com/soyaoki/Intro_CarND_Traffic_Light_Classifier/blob/master/Traffic_Light_Classifier.ipynb)
+
 ![text](rosnode.png)
 
 This is the project repo for the final project of the Udacity Self-Driving Car Nanodegree: Programming a Real Self-Driving Car. For more information about the project, see the project introduction [here](https://classroom.udacity.com/nanodegrees/nd013/parts/6047fe34-d93c-4f50-8336-b70ef10cb4b2/modules/e1a23b06-329a-4684-a717-ad476f0d8dff/lessons/462c933d-9f24-42d3-8bdc-a08a5fc866e4/concepts/5ab4b122-83e6-436d-850f-9f4d26627fd9).
