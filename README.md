@@ -1,10 +1,11 @@
-This is the project repo for the final project of the Udacity Self-Driving Car Nanodegree: Programming a Real Self-Driving Car. For more information about the project, see the project introduction [here](https://classroom.udacity.com/nanodegrees/nd013/parts/6047fe34-d93c-4f50-8336-b70ef10cb4b2/modules/e1a23b06-329a-4684-a717-ad476f0d8dff/lessons/462c933d-9f24-42d3-8bdc-a08a5fc866e4/concepts/5ab4b122-83e6-436d-850f-9f4d26627fd9).
+## This is 
+the project repo for the final project of the Udacity Self-Driving Car Nanodegree: Programming a Real Self-Driving Car. For more information about the project, see the project introduction [here](https://classroom.udacity.com/nanodegrees/nd013/parts/6047fe34-d93c-4f50-8336-b70ef10cb4b2/modules/e1a23b06-329a-4684-a717-ad476f0d8dff/lessons/462c933d-9f24-42d3-8bdc-a08a5fc866e4/concepts/5ab4b122-83e6-436d-850f-9f4d26627fd9).
 
 ![text](cover.png)
 
 [Drive on YouTube](https://youtu.be/DZwgYNhRr4g)
 
-### Before starting...
+## Before starting...
 
 Please execut following code in your workspace.
 
@@ -21,7 +22,7 @@ pip install -U keras
 pip install -U tensorflow
 ```
 
-### Summary
+## Summary
 
 In this system, 7 nodes were implemented.
 
@@ -37,9 +38,9 @@ In the simulator, the state of the traffic light was given so this node could su
 
 But in real world, self-driving car can not always use the infomation. So this node also has a detector and a classifier of traffic light's state using front-camera image.
 
-	・Detector : [Yolo 3 (implemeted in keras)](https://github.com/qqwweee/keras-yolo3)
+・Detector : [Yolo 3 (implemeted in keras)](https://github.com/qqwweee/keras-yolo3)
 
-	・Classifier : [Pretrained CNN (3 layer)](https://github.com/soyaoki/Intro_CarND_Traffic_Light_Classifier/blob/master/Traffic_Light_Classifier.ipynb)
+・Classifier : [Pretrained CNN (3 layer)](https://github.com/soyaoki/Intro_CarND_Traffic_Light_Classifier/blob/master/Traffic_Light_Classifier.ipynb)
 
 The detector subscribed a RGB image "image_color" and detected ROIs (traffic light regions). Then, the ROIs were cassified 3 states (Red, Yellow and Green) by the classifier.
 
@@ -47,27 +48,43 @@ The reasons why YOLO3 was chosen were (1) fast, (2) easy implementation and (3) 
 
 And the classifier was trained by images came from [this MIT self-driving car course](https://selfdrivingcars.mit.edu/).
 
-(3) Waypoint updater : 
+(3) Waypoint updater : This node published "/final_waypoints" using "/base_waypoints", "/current_pose" and "/traffic_waypoint".
+
+This cut out the base waypoint from current vehicle position to 200 points ahead, and changed the target velocity included in waypoint depending on state of traffic light.
 
 (4) Pure pursuit : [Pure Pursuit](https://www.ri.cmu.edu/pub_files/pub3/coulter_r_craig_1992_1/coulter_r_craig_1992_1.pdf) is one of the most famous algorithm in path tracking. 
 
 In this time, the system use codes implementated in [Autoware](https://github.com/autowarefoundation/autoware/tree/master/ros/src/computing/planning/motion/packages/waypoint_follower/nodes/pure_pursuit).
 
-This node subscribed "/current_pose", "/base_waypoints" and "/traffic_waypoint". And 
+This node subscribed "/current_velocity", "/final_waypoints" and "/current_pose". And it published "twist_cmd" (target of linear and angular velocity, in other words, target of longitudinal velocity and yaw rate).
 
-(5) Drive by wire : 
+(5) Drive by wire : This node subscribed "/vehicle/dbw_enabled", "/current_velocity" and "twist_cmd". 
 
-(6) Vehicle : 
+To control longitudinal velocity, a PID controller worked. And a bicycle model worked to control yaw rate.
 
-(7) Server : 
+	γ_des = ρ x v_des
 
-publish hz? traffic classification image? CNNがおかしい？ rosbug?
+	v_des ~= v_current
 
-### Preparation
+	γ_des_current = γ_des x v_current / v_des
+
+	ρ_des_current = γ_des_current / v_current
+
+	θ　= atan(L / ρ_des_current)
+
+	δ = θ　x N
+
+(6) Vehicle : Vehicle 
+
+(7) Server : Server
+
+traffic classification image? CNNがおかしい？
+
+## Preparation
 
 Please use **one** of the two installation options, either native **or** docker installation.
 
-### Native Installation
+## Native Installation
 
 * Be sure that your workstation is running Ubuntu 16.04 Xenial Xerus or Ubuntu 14.04 Trusty Tahir. [Ubuntu downloads can be found here](https://www.ubuntu.com/download/desktop).
 * If using a Virtual Machine to install Ubuntu, use the following configuration as minimum:
@@ -84,7 +101,7 @@ Please use **one** of the two installation options, either native **or** docker 
   * Use this option to install the SDK on a workstation that already has ROS installed: [One Line SDK Install (binary)](https://bitbucket.org/DataspeedInc/dbw_mkz_ros/src/81e63fcc335d7b64139d7482017d6a97b405e250/ROS_SETUP.md?fileviewer=file-view-default)
 * Download the [Udacity Simulator](https://github.com/udacity/CarND-Capstone/releases).
 
-### Docker Installation
+## Docker Installation
 [Install Docker](https://docs.docker.com/engine/installation/)
 
 Build the docker container
@@ -97,10 +114,10 @@ Run the docker file
 docker run -p 4567:4567 -v $PWD:/capstone -v /tmp/log:/root/.ros/ --rm -it capstone
 ```
 
-### Port Forwarding
+## Port Forwarding
 To set up port forwarding, please refer to the [instructions from term 2](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/16cf4a78-4fc7-49e1-8621-3450ca938b77)
 
-### Usage
+## Usage
 
 1. Clone the project repository
 ```bash
@@ -121,7 +138,7 @@ roslaunch launch/styx.launch
 ```
 4. Run the simulator
 
-### Real world testing
+## Real world testing
 1. Download [training bag](https://s3-us-west-1.amazonaws.com/udacity-selfdrivingcar/traffic_light_bag_file.zip) that was recorded on the Udacity self-driving car.
 2. Unzip the file
 ```bash

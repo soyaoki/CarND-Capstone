@@ -161,8 +161,8 @@ class WaypointUpdater(object):
             # Create a new waypoint
             p = Waypoint()
             p.pose = wp.pose # Copy pose(PoseStamped)
-            # 
-            stop_idx = max(self.stopline_wp_idx - closest_idx - 3, 0)
+            # Define stop line index
+            stop_idx = max(self.stopline_wp_idx - closest_idx - 5, 0)
             # Calculate distance 
             dist = self.distance(waypoints, i, stop_idx)
             # Calculate velocity for deceleration

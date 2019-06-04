@@ -13,7 +13,7 @@ class YawController(object):
     
     # Calculate steering value
     def get_steering(self, linear_velocity, angular_velocity, current_velocity):
-        # Calculate target yawrate
+        # Calculate target yawrate using current velocity
         angular_velocity = current_velocity * angular_velocity / linear_velocity if abs(linear_velocity) > 0. else 0.
         
         # Except very low velocity
@@ -23,6 +23,6 @@ class YawController(object):
         # Return steering angle to get the target yawrate
         return self.get_angle(max(current_velocity, self.min_speed) / angular_velocity) if abs(angular_velocity) > 0. else 0.0;
     
-    def get_angle(self, radius):
+    def get_angle(self, radius): # radius = radius of curvature
         angle = atan(self.wheel_base / radius) * self.steer_ratio
         return max(self.min_angle, min(self.max_angle, angle))
