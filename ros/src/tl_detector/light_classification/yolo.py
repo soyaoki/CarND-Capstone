@@ -20,7 +20,7 @@ from PIL import Image, ImageFont, ImageDraw
 from yolo3.model import yolo_eval, yolo_body, tiny_yolo_body
 from yolo3.utils import letterbox_image
 import os
-from keras.utils import multi_gpu_model
+#from keras.utils import multi_gpu_model
 
 class YOLO(object):
     _defaults = {
@@ -70,6 +70,7 @@ class YOLO(object):
         num_anchors = len(self.anchors)
         num_classes = len(self.class_names)
         is_tiny_version = num_anchors==6 # default setting
+        K.set_learning_phase(1) #set learning phase
         try:
             self.yolo_model = load_model(model_path, compile=False)
         except:
