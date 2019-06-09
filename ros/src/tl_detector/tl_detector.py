@@ -177,15 +177,15 @@ class TLDetector(object):
             # If closest light exist, return the light's state and waypoint
             if closest_light:
                 # Randomly use image
-                if (random.randint(0,20)==10):
+                if (random.randint(0,100)==10):
                     if (self.has_image):
-                        state = self.get_light_state(closest_light)
+                        state = self.get_light_state()
                         return line_wp_idx, state
                 return line_wp_idx, closest_light.state
             
-        # Classify light state 
+        # When system can not use light information, Classify light state using camera image
         elif (self.has_image):
-            state = self.get_light_state(closest_light)
+            state = self.get_light_state()
             if(state == TrafficLight.RED):
                 line_wp_idx = car_wp_idx + 20 # Turning is needed
             return line_wp_idx, state
@@ -206,7 +206,7 @@ class TLDetector(object):
         closest_idx = self.waypoint_tree.query([x,y],1)[1]
         return closest_idx
 
-    def get_light_state(self, light):
+    def get_light_state(self):
         """Determines the current color of the traffic light
 
         Args:

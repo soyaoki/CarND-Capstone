@@ -5,23 +5,6 @@ the project repo for the final project of the Udacity Self-Driving Car Nanodegre
 
 [Drive on YouTube](https://youtu.be/DZwgYNhRr4g)
 
-## Before starting...
-
-Please execut following code in your workspace.
-
-```
-sudo apt-get update
-sudo apt-get install -y ros-kinetic-dbw-mkz-msgs
-cd /home/workspace/CarND-Capstone/ros
-rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y
-pip install --upgrade catkin_pkg_modules
-
-pip install tensorflow_gpu keras pillow matplotlib
-pip install -U pillow
-pip install -U keras
-pip install -U tensorflow
-```
-
 ## Summary
 
 In this system, 7 nodes were implemented.
@@ -29,6 +12,7 @@ In this system, 7 nodes were implemented.
 ![text](rosnode.png)
 
 (1) Waypoint loader : IN this node, all waypoints in map were loaded and published only once as "/base_waypoints".
+
 
 (2) Traffic Light detector : Waypoint depending on a state of the closest traffic light was published as "/traffic_waypoint". 
 
@@ -48,15 +32,18 @@ The reasons why YOLO3 was chosen were (1) fast, (2) easy implementation and (3) 
 
 And the classifier was trained by images came from [this MIT self-driving car course](https://selfdrivingcars.mit.edu/).
 
+
 (3) Waypoint updater : This node published "/final_waypoints" using "/base_waypoints", "/current_pose" and "/traffic_waypoint".
 
 This cut out the base waypoint from current vehicle position to 200 points ahead, and changed the target velocity included in waypoint depending on state of traffic light.
+
 
 (4) Pure pursuit : [Pure Pursuit](https://www.ri.cmu.edu/pub_files/pub3/coulter_r_craig_1992_1/coulter_r_craig_1992_1.pdf) is one of the most famous algorithm in path tracking. 
 
 In this time, the system use codes implementated in [Autoware](https://github.com/autowarefoundation/autoware/tree/master/ros/src/computing/planning/motion/packages/waypoint_follower/nodes/pure_pursuit).
 
 This node subscribed "/current_velocity", "/final_waypoints" and "/current_pose". And it published "twist_cmd" (target of linear and angular velocity, in other words, target of longitudinal velocity and yaw rate).
+
 
 (5) Drive by wire : This node subscribed "/vehicle/dbw_enabled", "/current_velocity" and "twist_cmd". 
 
@@ -73,6 +60,7 @@ To control longitudinal velocity, a PID controller worked. And a bicycle model w
 	θ　= atan(L / ρ_des_current)
 
 	δ = θ　x N
+
 
 (6) Vehicle : Vehicle 
 

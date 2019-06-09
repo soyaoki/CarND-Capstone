@@ -33,6 +33,7 @@ class TLClassifier(object):
         # (1) Get ROI (Detect traffic lights)
         state_predicted = TrafficLight.UNKNOWN
         image, tl_imgs = self.detector.detect_image(image)
+        
         if (len(tl_imgs)>1):
             # For each tdetected lights
             states = []
