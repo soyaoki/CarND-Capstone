@@ -29,7 +29,9 @@ class YOLO(object):
         "classes_path": PATH + '/light_classification/yolo-config/model_data/coco_classes.txt',
         "score" : 0.3, # confidence score
         "iou" : 0.45, # Intersection Over Union
-        "model_image_size" : (8*32, 6*32), # Image size
+        #"model_image_size" : (416, 416),
+        "model_image_size" : (25*32, 20*32), # Image size
+        #"model_image_size" : (8*32, 6*32), # Image size
         "gpu_num" : 1,
     }
 
@@ -133,8 +135,8 @@ class YOLO(object):
 
         print('Found {} boxes for {}'.format(len(out_boxes), 'img'))
 
-        #font = ImageFont.truetype(font=PATH + '/light_classification/keras-yolo3/font/FiraMono-Medium.otf',
-        #            size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
+        font = ImageFont.truetype("light_classification/yolo-config/font/FiraMono-Medium.otf",
+                    size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
         thickness = (image.size[0] + image.size[1]) // 300
 
         for i, c in reversed(list(enumerate(out_classes))):
@@ -144,7 +146,7 @@ class YOLO(object):
 
             label = '{} {:.2f}'.format(predicted_class, score)
             draw = ImageDraw.Draw(image)
-            #label_size = draw.textsize(label, font)
+            label_size = draw.textsize(label, font)
 
             top, left, bottom, right = box
             top = max(0, np.floor(top + 0.5).astype('int32'))
@@ -160,26 +162,24 @@ class YOLO(object):
                 tl_imgs.append(temp_image)
             ###############################
             
-            #if top - label_size[1] >= 0:
-                #text_origin = np.array([left, top - label_size[1]])
-            #else:
-                #text_origin = np.array([left, top + 1])
+            if top - label_size[1] >= 0:
+                text_origin = np.array([left, top - label_size[1]])
+            else:
+                text_origin = np.array([left, top + 1])
 
             # My kingdom for a good redistributable image drawing library.
             for i in range(thickness):
                 draw.rectangle(
                     [left + i, top + i, right - i, bottom - i],
                     outline=self.colors[c])
-            #draw.rectangle(
-                #[tuple(text_origin), tuple(text_origin + label_size)],
-                #fill=self.colors[c])
-            #draw.text(text_origin, label, fill=(0, 0, 0), font=font)
+            draw.rectangle(
+                [tuple(text_origin), tuple(text_origin + label_size)],
+                fill=self.colors[c])
+            draw.text(text_origin, label, fill=(0, 0, 0), font=font)
             del draw
 
         #end = timer()
         #print(end - start)
-        image.save('traffic-light.jpg', quality=95)
-        print("saved image.")
         return image, tl_imgs
 
     def close_session(self):

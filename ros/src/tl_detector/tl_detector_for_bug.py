@@ -29,7 +29,6 @@ class TLDetector(object):
         self.lights = []
         self.waypoints_2d = None
         self.waypoint_tree = None
-        
         # Subscriber
         sub1 = rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb) # Get current pose -> self.pose
         sub2 = rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb) # Get waypoints -> self.waypoints

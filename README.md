@@ -66,7 +66,7 @@ To control longitudinal velocity, a PID controller worked. And a bicycle model w
 
 (7) Server : Server
 
-traffic classification image? CNNがおかしい？
+![GIF](ros/src/tl_detector/out.gif)
 
 ## Preparation
 
