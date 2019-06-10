@@ -124,22 +124,23 @@ class TLClassifier(object):
                 w, h = image.size
                 font = ImageFont.truetype("light_classification/yolo-config/font/FiraMono-Medium.otf", 32)
                 text = "CNN Predcit : " + str(prd)
-                draw.text((0,h-150),text, fill="#333", font=font)
+                draw.text((0,h-150),text, fill="#fff", font=font)
                 text = "HSV Predcit: " + str(prd_hsv)
-                draw.text((0,h-100),text, fill="#333", font=font)
+                draw.text((0,h-100),text, fill="#fff", font=font)
                 text = "RGB Predcit : " + str(prd_rgb)
-                draw.text((0,h-50),text, fill="#333", font=font)
+                draw.text((0,h-50),text, fill="#fff", font=font)
                 font = ImageFont.truetype("light_classification/yolo-config/font/FiraMono-Medium.otf", 16)
                 text = "0: Red, 1:Yellow, 2: Green"
-                draw.text((w-300,h-20),text, fill="#333", font=font)
+                draw.text((w-300,h-20),text, fill="#fff", font=font)
                 if self.count > 30:
                     self.imgs_for_gif.append(image)
                     print(len(self.imgs_for_gif))
                 elif self.count == 30:
-                    image.save('out.gif', save_all=True, append_images=self.imgs_for_gif, duration=400, loop=0)
-                    print("GIF MADE.")
-                #name = 'traffic-light-' + str(self.count) + '.jpg'
-                #image.save(name, quality=80)
+                    print(self.imgs_for_gif)
+                    image.save('out.gif', save_all=True, append_images=self.imgs_for_gif, duration=100, loop=0)
+                    print("Done GIF making.")
+                name = 'imgs/traffic-light-' + str(self.count) + '.jpg'
+                image.save(name, quality=80)
                 #print("saved image.")
                 self.count = self.count+1
                 print(self.count)

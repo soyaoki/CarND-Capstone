@@ -66,7 +66,9 @@ To control longitudinal velocity, a PID controller worked. And a bicycle model w
 
 (7) Server : Server
 
-![GIF](ros/src/tl_detector/out.gif)
+![GIF](ros/src/tl_detector/for_GIF/out_sim.gif)
+
+![GIF](ros/src/tl_detector/for_GIF/out_rosbag.gif)
 
 ## Preparation
 
