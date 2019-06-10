@@ -5,7 +5,7 @@ the project repo for the final project of the Udacity Self-Driving Car Nanodegre
 
 [Drive on YouTube in Highway](https://youtu.be/DZwgYNhRr4g)
 
-[Drive on YpuTube in Test course](https://youtu.be/f_IZwXv-xiE)
+[Drive on YouTube in Test course](https://youtu.be/f_IZwXv-xiE)
 
 ## Summary
 
