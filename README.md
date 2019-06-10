@@ -3,7 +3,9 @@ the project repo for the final project of the Udacity Self-Driving Car Nanodegre
 
 ![text](cover.png)
 
-[Drive on YouTube](https://youtu.be/DZwgYNhRr4g)
+[Drive on YouTube in Highway](https://youtu.be/DZwgYNhRr4g)
+
+[Drive on YpuTube in Test course](https://youtu.be/f_IZwXv-xiE)
 
 ## Summary
 
@@ -22,15 +24,15 @@ In the simulator, the state of the traffic light was given so this node could su
 
 But in real world, self-driving car can not always use the infomation. So this node also has a detector and a classifier of traffic light's state using front-camera image.
 
-・Detector : [Yolo 3 (implemeted in keras)](https://github.com/qqwweee/keras-yolo3)
+・Detector : [Yolo 3 (implemeted in keras. Thank you qqwweee!)](https://github.com/qqwweee/keras-yolo3)
 
-・Classifier : [Pretrained CNN (3 layer)](https://github.com/soyaoki/Intro_CarND_Traffic_Light_Classifier/blob/master/Traffic_Light_Classifier.ipynb)
+・Classifier : [HSV classifier, RGB classifier and Pretrained CNN (3 layer)](https://github.com/soyaoki/Intro_CarND_Traffic_Light_Classifier/blob/master/Traffic_Light_Classifier.ipynb)
 
 The detector subscribed a RGB image "image_color" and detected ROIs (traffic light regions). Then, the ROIs were cassified 3 states (Red, Yellow and Green) by the classifier.
 
 The reasons why YOLO3 was chosen were (1) fast, (2) easy implementation and (3) it can detect other objects like vehicle, bicycle and people for collision avoidance.
 
-And the classifier was trained by images came from [this MIT self-driving car course](https://selfdrivingcars.mit.edu/).
+And the CNN classifier was trained by images came from [this MIT self-driving car course](https://selfdrivingcars.mit.edu/).
 
 
 (3) Waypoint updater : This node published "/final_waypoints" using "/base_waypoints", "/current_pose" and "/traffic_waypoint".
@@ -40,7 +42,7 @@ This cut out the base waypoint from current vehicle position to 200 points ahead
 
 (4) Pure pursuit : [Pure Pursuit](https://www.ri.cmu.edu/pub_files/pub3/coulter_r_craig_1992_1/coulter_r_craig_1992_1.pdf) is one of the most famous algorithm in path tracking. 
 
-In this time, the system use codes implementated in [Autoware](https://github.com/autowarefoundation/autoware/tree/master/ros/src/computing/planning/motion/packages/waypoint_follower/nodes/pure_pursuit).
+In this time, the system use codes implementated in [Autoware?](https://github.com/autowarefoundation/autoware/tree/master/ros/src/computing/planning/motion/packages/waypoint_follower/nodes/pure_pursuit).
 
 This node subscribed "/current_velocity", "/final_waypoints" and "/current_pose". And it published "twist_cmd" (target of linear and angular velocity, in other words, target of longitudinal velocity and yaw rate).
 
@@ -49,26 +51,32 @@ This node subscribed "/current_velocity", "/final_waypoints" and "/current_pose"
 
 To control longitudinal velocity, a PID controller worked. And a bicycle model worked to control yaw rate.
 
-	γ_des = ρ x v_des
+	γ_desire = ρ * v_desire
 
-	v_des ~= v_current
+	v_desire != v_current
 
-	γ_des_current = γ_des x v_current / v_des
+	γ_desire_current = γ_desire * v_current / v_desire
 
-	ρ_des_current = γ_des_current / v_current
+	ρ_desire_current = γ_des_current / v_current
 
-	θ　= atan(L / ρ_des_current)
+	θ　= atan(L / ρ_desire_current)
 
-	δ = θ　x N
-
+	δ = θ　* N
+    
 
 (6) Vehicle : Vehicle 
 
 (7) Server : Server
 
+## Classifier
+
+In simulator, the pretrained CNN was good to classify a state of lights. But in rosbag, the RGB (classic) classifier was good to classify.
+
 ![GIF](ros/src/tl_detector/for_GIF/out_sim.gif)
 
 ![GIF](ros/src/tl_detector/for_GIF/out_rosbag.gif)
+
+So finally the RGB classifier was chosen for main classifier.
 
 ## Preparation
 

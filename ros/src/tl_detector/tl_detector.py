@@ -137,7 +137,7 @@ class TLDetector(object):
                 self.state_count += 1
                 #rospy.logwarn("Tl detector: published 'traffic waypoint'(stop line index).")
                 end = timer()
-                rospy.logwarn("Traffic light recognition time : {0}".format(end-start) + ", Closest light state : {0}".format(state))
+                #rospy.logwarn("Traffic light recognition time : {0}".format(end-start) + ", Closest light state : {0}".format(state))
             rate.sleep()
     
     # Detect and classify trafic light. Return light waypoint and state
@@ -160,11 +160,36 @@ class TLDetector(object):
         # List of positions that correspond to the line to stop in front of for a given intersection
         stop_line_positions = self.config['stop_line_positions']
         
-        if (self.has_image):
+        # Use light information in Simulator
+        if(self.lights):
+            #TODO find the closest visible traffic light (if one exists)
+            diff = len(self.waypoints.waypoints)
+            # For each lights
+            for i, light in enumerate(self.lights):
+                # Get stop line waypoints index
+                line = stop_line_positions[i]
+                temp_wp_idx = self.get_closest_waypoint(line[0], line[1]) # closest waypoint indx for the stop line
+                # Find index of closest stop line waypoint
+                d = temp_wp_idx - car_wp_idx
+                if d >= 0 and d < diff:
+                    diff = d
+                    closest_light = light
+                    line_wp_idx = temp_wp_idx
+            # If closest light exist, return the light's state and waypoint
+            if closest_light:
+                # Randomly use image
+                if (random.randint(0,100)==10):
+                    if (self.has_image):
+                        state = self.get_light_state()
+                        return line_wp_idx, state
+                return line_wp_idx, closest_light.state
+            
+        # When system can not use light information, Classify light state using camera image
+        elif (self.has_image):
             state = self.get_light_state()
             if(state == TrafficLight.RED):
-                line_wp_idx = car_wp_idx + 20 # Turning is needed
-                return line_wp_idx, state
+                line_wp_idx = car_wp_idx + 5 # Turning is needed
+            return line_wp_idx, state
         
         return -1, TrafficLight.UNKNOWN
 

@@ -30,7 +30,7 @@
 
 #include "pure_pursuit_core.h"
 
-constexpr int LOOP_RATE = 10; //processing frequency 30
+constexpr int LOOP_RATE = 30; //processing frequency 30
 
 
 int main(int argc, char **argv)
